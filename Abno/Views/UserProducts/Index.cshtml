@@ -1,0 +1,97 @@
+﻿@model Abno.Models.SubscriberViewModel
+
+@{
+    Layout = "~/Views/Admin/_Layout.cshtml";
+    ViewData["Title"] = "Subscription management";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container col-11">
+    <div class="col py-3">
+        <div id="tableContainer">
+            <table id="myTable" class="display">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Subscribers</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model.Products)
+                    {
+                        <tr>
+                            <td>@product.Name</td>
+                            <td>
+                                @foreach (var userProduct in Model.UserProducts.Where(up => up.ProductId == product.Id))
+                                {
+                                    <div>
+                                        @userProduct.ProductUser.UserName
+                                        <button type="button" class="btn-close ml-2 btn-danger delete-button" aria-label="Close"
+                                                data-bs-toggle="modal" data-bs-target="#exampleModal_@userProduct.Id"
+                                                data-id="@userProduct.Id" data-delete-url="/UserProducts/Delete"></button>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn btn-primary" asp-action="Create" asp-route-id="@product.Id">Add Subscribers</a>
+                            </td>
+                        </tr>
+                    }
+                   
+                    <!-- Modal -->
+                    @foreach (var userProduct in Model.UserProducts)
+                    {
+                        <div class="modal fade" id="exampleModal_@userProduct.Id" tabindex="-1" aria-labelledby="exampleModalLabel_@userProduct.Id" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel_@userProduct.Id">Confirmation</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h3>Are you sure you want to end this subscription?</h3>
+                                        <form class="ajax-form" id="deleteForm_@userProduct.Id" method="post" action="@Url.Action("Delete", "UserProducts", new { id = userProduct.Id })">
+                                            <input type="hidden" name="id" value="@userProduct.Id" />
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <input type="submit" value="Delete" class="btn btn-danger" />
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '.delete-button', function () {
+                var id = $(this).data('id');
+                var deleteUrl = $(this).data('delete-url');
+                var modalId = $(this).data('bs-target');
+
+                $(modalId).find('.confirm-delete').data('form-id', '#deleteForm_' + id);
+                $('#itemId_' + id).val(id);
+                $('#deleteForm_' + id).attr('action', deleteUrl);
+            });
+
+            $('.confirm-delete').click(function () {
+                var formId = $(this).data('form-id');
+
+                $(formId).submit();
+
+                $(this).closest('.modal').modal('hide');
+            });
+        });
+    </script>
+}

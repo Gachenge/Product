@@ -1,0 +1,60 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "User management";
+}
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var Scolor = "white";
+    if (user != null)
+    {
+        Scolor = user.Secondary;
+    }
+     var role = user.Role;
+    if (role != UserRole.Admin)
+    {
+        Context.Response.Redirect("home");
+    }
+}
+
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0" style="background-color:@Scolor">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <a href="#" onclick="toggleTable()" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                    <span class="fs-5 d-none d-sm-inline">Menu</span>
+                </a>
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li class="nav-item">
+                        <a asp-controller="Admin" asp-action="index" class="nav-link align-middle px-0">
+                            <i class="fs-4 bi-person-gear"></i> <span class="ms-1 d-none d-sm-inline">User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Products" asp-action="index" class="nav-link px-0 align-middle">
+                            <i class="fs-4 bi-briefcase-fill"></i> <span class="ms-1 d-none d-sm-inline">Product management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="UserProducts" asp-action="index" class="nav-link px-0 align-middle">
+                            <i class="fs-4 bi-house"></i><span class="ms-1 d-none d-sm-inline">Subscription management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Admin" asp-action="Settings" asp-route-id="@ViewBag.id" class="nav-link px-0 align-middle">
+                            <i class="fs-4 bi-gear-wide-connected"></i> <span class="ms-1 d-none d-sm-inline">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        @RenderBody()
+
+        </div>
+        </div>
+       @RenderSection("Scripts", required: false)

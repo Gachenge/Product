@@ -1,0 +1,29 @@
+﻿@model Abno.Models.AddSubscriberViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Admin/_Layout.cshtml";
+}
+
+<div class="container col-11">
+    <form asp-action="Create" class="ajax-form" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <input type="hidden" asp-for="userProduct.ProductId" />
+            <label asp-for="Product.Id" class="control-label">ProductId</label>
+            <span asp-validation-for="userProduct.ProductId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="userProduct.UserId" class="control-label">UserName</label>
+            <select asp-for="userProduct.UserId" class="form-control" asp-items="@Model.UserSelect"></select>
+            <span asp-validation-for="userProduct.UserId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+    </form>
+    <br />
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
