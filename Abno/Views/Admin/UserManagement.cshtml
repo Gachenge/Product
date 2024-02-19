@@ -1,0 +1,106 @@
+﻿@{
+    ViewData["Title"] = "UserManagement";
+    Layout = "~/Views/Admin/_Layout.cshtml";
+}
+
+<div class="container col-11">
+<div class="col py-3 border border-secondary mt-3 bg-secondary text-white">
+    <div id="tableContainer">
+        <table id="myTable" class="display">
+            <thead>
+                <tr>
+                    <th>Avatar</th>
+                    <th>UserName</th>
+                    <th>Email</th>
+                    <th>Subscriptions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var subscriptions = ViewData["Subscriptions"] as Dictionary<User, List<Product>>;
+                    foreach (var u in subscriptions)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@u.Key.Avatar" alt="User's avatar" class="img-thumbnail rounded-circle" style="width: 50px; height: auto;" />
+                            </td>
+                            <td>@u.Key.UserName</td>
+                            <td>@u.Key.Email</td>
+                            <td>
+                                @foreach (var prod in u.Value)
+                                {
+                                    @prod.Name<br />
+                                }
+                            </td>
+                            <td>
+                                <a type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal_@u.Key.Id">Edit</a>
+
+                                <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_@u.Key.Id">Delete</a>
+                            </td>
+                        </tr>
+                        <div class="modal fade" id="exampleModal_@u.Key.Id" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content bg-secondary text-white">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="post" class="ajax-form" asp-action="EditUser" asp-route-id="@u.Key.Id" id="editUserForm_@u.Key.Id">
+                                            <input type="hidden" id="editUserId" name="id" value="@u.Key.Id" />
+
+                                            <h5>Change user role</h5>
+                                            @foreach (UserRole rol in Enum.GetValues(typeof(UserRole)))
+                                            {
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="Role" id="@($"role_{rol}")" value="@rol" @(rol == u.Key.Role ? "checked" : "")>
+                                                    <br><label class="form-check-label" for="@($"role_{rol}")">
+                                                        @rol
+                                                    </label>
+                                                </div>
+                                            }
+                                            <div class="container">
+                                                <label asp-for="@u.Key.Primary">Choose a primary color:</label><br />
+                                                <input type="color" id="Primary" name="Primary" value="@u.Key.Primary"><br />
+
+                                                <label asp-for="@u.Key.Secondary">Choose a secondary color:</label><br />
+                                                <input type="color" id="Secondary" name="Secondary" value="@u.Key.Secondary">
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="submit" value="Save" class="btn btn-primary" />
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="modal fade" id="deleteModal_@u.Key.Id" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                <div class="modal-content bg-secondary text-white">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                        Are you sure to delete?
+                                        <form method="post" class="ajax-form" asp-action="DeleteConfirmed" asp-route-id="@u.Key.Id" id="deleteUserForm_@u.Key.Id">
+                                                <input type="hidden" id="deleteUserId" name="id" value="@u.Key.Id" />
+                                                <div class="modal-footer">
+                                                    <input type="submit" value="Delete" class="btn btn-primary" />
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </form>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>

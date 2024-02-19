@@ -1,6 +1,5 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "User management";
 }
 
 @using Microsoft.AspNetCore.Identity
@@ -21,17 +20,22 @@
     }
 }
 
-<div class="container-fluid">
+<div class="container-fluid ml-0 p-0">
     <div class="row flex-nowrap">
         <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0" style="background-color:@Scolor">
             <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
-                <a href="#" onclick="toggleTable()" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <a href="#" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                     <span class="fs-5 d-none d-sm-inline">Menu</span>
                 </a>
                 <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     <li class="nav-item">
-                        <a asp-controller="Admin" asp-action="index" class="nav-link align-middle px-0">
-                            <i class="fs-4 bi-person-gear"></i> <span class="ms-1 d-none d-sm-inline">User Management</span>
+                        <a asp-controller="Admin" asp-action="Index" class="nav-link align-middle px-0">
+                            <i class="fs-4 bi-bricks"></i> <span class="ms-1 d-none d-sm-inline">Admin Panel</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Admin" asp-action="UserManagement" class="nav-link align-middle px-0">
+                            <i class="fs-4 bi-person-badge"></i> <span class="ms-1 d-none d-sm-inline">User management</span>
                         </a>
                     </li>
                     <li>
@@ -42,11 +46,6 @@
                     <li>
                         <a asp-controller="UserProducts" asp-action="index" class="nav-link px-0 align-middle">
                             <i class="fs-4 bi-house"></i><span class="ms-1 d-none d-sm-inline">Subscription management</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a asp-controller="Admin" asp-action="Settings" asp-route-id="@ViewBag.id" class="nav-link px-0 align-middle">
-                            <i class="fs-4 bi-gear-wide-connected"></i> <span class="ms-1 d-none d-sm-inline">Settings</span>
                         </a>
                     </li>
                 </ul>

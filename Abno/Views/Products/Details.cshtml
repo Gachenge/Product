@@ -1,4 +1,7 @@
 ﻿@model Abno.Models.EditProductViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
+
 @{
     Layout = "~/Views/Admin/_Layout.cshtml";
     ViewData["Title"] = "Product management";
@@ -28,13 +31,21 @@
 
     }
     
+    @{
+        var user = await UserManager.GetUserAsync(User);
+
+        if (user.Role == UserRole.Admin)
+        {
+            <button class="btn btn-sm btn-secondary float-right">Subscribers: @subs</button>
+
+            <a data-bs-toggle="modal" data-bs-target="#editModal_@product.Id" class="btn btn-info">Edit</a>
+            <a data-bs-toggle="modal" data-bs-target="#deleteModal_@product.Id" class="btn btn-danger">Delete</a>
+            <br />
+        }
+    }
     
     <br />
-    <button class="btn btn-sm btn-secondary float-right">Subscribers: @subs</button>
-
-    <a data-bs-toggle="modal" data-bs-target="#editModal_@product.Id" class="btn btn-info">Edit</a>
-    <a data-bs-toggle="modal" data-bs-target="#deleteModal_@product.Id" class="btn btn-danger">Delete</a>
-    <br />
+    
 
     <a asp-action="Index">Back to list</a>
 

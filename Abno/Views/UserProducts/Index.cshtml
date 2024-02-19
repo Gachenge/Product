@@ -8,7 +8,7 @@
 @Html.AntiForgeryToken()
 
 <div class="container col-11">
-    <div class="col py-3">
+    <div class="col py-3  border border-secondary mt-3 bg-secondary text-white">
         <div id="tableContainer">
             <table id="myTable" class="display">
                 <thead>
@@ -45,7 +45,7 @@
                     {
                         <div class="modal fade" id="exampleModal_@userProduct.Id" tabindex="-1" aria-labelledby="exampleModalLabel_@userProduct.Id" aria-hidden="true">
                             <div class="modal-dialog">
-                                <div class="modal-content">
+                                <div class="modal-content bg-secondary text-white">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="exampleModalLabel_@userProduct.Id">Confirmation</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

@@ -23,7 +23,7 @@ namespace Abno.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
         }
 
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -33,6 +33,7 @@ namespace Abno.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
+            public string UserName { get; set;}
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
@@ -43,10 +44,11 @@ namespace Abno.Areas.Identity.Pages.Account.Manage
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
-            Username = userName;
+            UserName = userName;
 
             Input = new InputModel
             {
+                UserName = userName,
                 PhoneNumber = phoneNumber
             };
         }
@@ -75,6 +77,16 @@ namespace Abno.Areas.Identity.Pages.Account.Manage
             {
                 await LoadAsync(user);
                 return Page();
+            }
+            var userName = await _userManager.GetUserNameAsync(user);
+            if (Input.UserName != userName)
+            {
+                var setUserName = await _userManager.SetUserNameAsync(user, Input.UserName);
+                if (!setUserName.Succeeded)
+                {
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    throw new InvalidOperationException($"Unexpected error occurred setting user name for user with ID '{userId};.");
+                }
             }
 
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);

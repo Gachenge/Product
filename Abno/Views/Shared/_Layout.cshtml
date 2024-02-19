@@ -57,15 +57,22 @@
             <div class="toast toast-error position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true">
                 <div class="toast-body bg-danger text-white"></div>
             </div>
-            @RenderBody()
+            <br />
+            <div class="content" style="min-height: calc(100vh - 70px)">
+                @RenderBody()
+            </div>
+            <br />
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - Abno - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top footer text-muted bg-dark mt-auto">
+        <div class="container text-center">
+            <div class="bg-dark d-inline-block p-1">
+                <img class="img-thumbnail border-0 bg-dark" src="/Logo/AbnoLogo.png" />
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

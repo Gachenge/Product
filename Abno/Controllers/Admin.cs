@@ -31,7 +31,7 @@ namespace Abno.Controllers
             }
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> UserManagement()
         {
             getUserRole();
             if (_role != UserRole.Admin)
@@ -121,7 +121,6 @@ namespace Abno.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while editing user: {ex.Message}");
                 return StatusCode(500);
             }
         }
@@ -169,5 +168,35 @@ namespace Abno.Controllers
             return _context.Users.Any(u => u.Id == id);
      
        }
+
+        public async Task<IActionResult> Index()
+        {
+            var totalUsers = await _context.Users.CountAsync();
+            var totalProducts = await _context.Product.CountAsync();
+
+            var userProducts = await _context.UserProducts.Include(up => up.Product).Include(up => up.ProductUser).ToListAsync();
+
+            Dictionary<Product, List<User>> usersPerProduct = new Dictionary<Product, List<User>>();
+
+            foreach (var userProduct in userProducts)
+            {
+                if (!usersPerProduct.ContainsKey(userProduct.Product))
+                {
+                    usersPerProduct[userProduct.Product] = new List<User>();
+                }
+
+                usersPerProduct[userProduct.Product].Add(userProduct.ProductUser);
+            }
+
+            var viewModel = new AdminViewModel
+            {
+                Product = new Product(),
+                UsersPerProduct = usersPerProduct,
+                totalProducts = totalProducts,
+                totalUsers = totalUsers
+            };
+            return View(viewModel);
+        }
+
     }
 }

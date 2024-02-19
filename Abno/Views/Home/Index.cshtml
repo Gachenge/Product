@@ -5,6 +5,7 @@
     ViewData["Title"] = "Home Page";
 }
 
+<div class="container">
 <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
@@ -44,7 +45,8 @@
     </div>
     </div>
 
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
+
     @foreach (var product in Model.Products)
     {
         <div class="col mb-4">
@@ -53,16 +55,17 @@
                     <h5 class="card-title text-center flex-fill">@product.Name</h5>
                     <p class="card-text text-success flex-fill">@product.Description</p>
                     @if (User.Identity.IsAuthenticated)
-                    {
-                        var user = await UserManager.GetUserAsync(User);
-
-                        if (user.Role == UserRole.Admin)
-                        {
-                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary mt-auto">Details</a>
+                   {
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary mt-auto">Details</a>
                         }
-                    }
-                </div>
+                        else
+                        {
+                            return RedirectToPageResult("/")
+                        }
+                    </div>
             </div>
         </div>
     }
 </div>
+</div>
+<br />
