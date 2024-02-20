@@ -187,16 +187,41 @@ namespace Abno.Controllers
 
                 usersPerProduct[userProduct.Product].Add(userProduct.ProductUser);
             }
+            // Prepare data points for the line chart
+            var lineDataPoints = new List<object>();
+
+            foreach (var userProduct in userProducts)
+            {
+                var createdAt = userProduct.CreatedAt.Date;
+                var productName = userProduct.Product.Name;
+
+                var existingProductData = lineDataPoints.FirstOrDefault(p => ((dynamic)p).name == productName);
+
+                if (existingProductData == null)
+                {
+                    // If product name does not exist, create a new data point
+                    var productLineData = new List<LineChartDataPoint>();
+                    productLineData.Add(new LineChartDataPoint { Label = createdAt.ToString(), Y = 1, DataPoints = new List<LineChartDataPoint>() });
+                    lineDataPoints.Add(new { type = "line", name = productName, showInLegend = true, dataPoints = productLineData });
+                }
+                else
+                {
+                    // If product name already exists, add data point to existing product
+                    ((List<LineChartDataPoint>)((dynamic)existingProductData).dataPoints).Add(new LineChartDataPoint { Label = createdAt.ToString(), Y = 1 });
+                }
+            }
 
             var viewModel = new AdminViewModel
             {
                 Product = new Product(),
                 UsersPerProduct = usersPerProduct,
                 totalProducts = totalProducts,
-                totalUsers = totalUsers
+                totalUsers = totalUsers,
+                UserProducts = userProducts,
+                LineDataPoints = lineDataPoints
             };
             return View(viewModel);
         }
 
+        }
     }
-}

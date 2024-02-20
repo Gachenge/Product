@@ -8,5 +8,7 @@ namespace Abno.Models
         public Product Product { get; set; }
         public int totalProducts {  get; set; }
         public int totalUsers {  get; set; }
+        public List<UserProduct> UserProducts { get; set; }
+        public List<object> LineDataPoints { get; internal set; }
     }
 }

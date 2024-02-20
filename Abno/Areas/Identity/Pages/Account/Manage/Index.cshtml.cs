@@ -81,6 +81,11 @@ namespace Abno.Areas.Identity.Pages.Account.Manage
             var userName = await _userManager.GetUserNameAsync(user);
             if (Input.UserName != userName)
             {
+                var existingUserName = await _userManager.GetUserNameAsync(user);
+                if (existingUserName != null) {
+                    ModelState.AddModelError("", "Username is already registered");
+                    return Page();
+                }
                 var setUserName = await _userManager.SetUserNameAsync(user, Input.UserName);
                 if (!setUserName.Succeeded)
                 {

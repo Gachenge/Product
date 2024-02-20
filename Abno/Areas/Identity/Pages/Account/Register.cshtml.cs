@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -73,6 +74,15 @@ namespace Abno.Areas.Identity.Pages.Account
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            // Check if the email is already registered
+            var existingEmail = await _userManager.FindByEmailAsync(Input.Email);
+            if (existingEmail != null)
+            {
+                ModelState.AddModelError(string.Empty, "Email is already registered.");
+                return Page();
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new User { UserName = Input.Email, Email = Input.Email };

@@ -1,7 +1,65 @@
 ﻿@model Abno.Models.AdminViewModel
 
 @{
-  Layout = "~/Views/Admin/_Layout.cshtml";
+    Layout = "~/Views/Admin/_Layout.cshtml";
 }
+<div class="col-11">
+    <div class="row">
+        <div class="col">
+            <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+        </div>
+        <div class="col">
+            <div id="lineContainer" style="height: 370px; width: 100%;"></div>
+        </div>
+    </div>
+</div>
 
+@section Scripts {
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+    <script>
+        window.onload = function () {
+            var barDataPoints = [];
+            var lineDataPoints = [];
 
+            // Populate data for the bar chart
+            @foreach (var product in Model.UsersPerProduct.Keys)
+            {
+                <text>barDataPoints.push({ label: "@product.Name", y: @Model.UsersPerProduct[product].Count });</text>
+            }
+
+            var barChart = new CanvasJS.Chart("chartContainer", {
+                animationEnabled: true,
+                title: {
+                    text: "Product subscriptions"
+                },
+                axisY: {
+                    title: "Subscribers",
+                    gridThickness: 0
+                },
+                data: [{
+                    type: "bar",
+                    indexLabel: "{y}",
+                    dataPoints: barDataPoints
+                }]
+            });
+            barChart.render();
+
+                 var lineDataPoints = @Html.Raw(Json.Serialize(Model.LineDataPoints));
+
+                // Create line chart
+                var lineChart = new CanvasJS.Chart("lineContainer", {
+                    animationEnabled: true,
+                    title: {
+                        text: "Product Trends By Day"
+                    },
+                    toolTip: {
+                        shared: true
+                    },
+                    data: lineDataPoints
+                });
+                // Render line chart
+                lineChart.render();
+            }
+
+    </script>
+}
