@@ -3,63 +3,112 @@
 @{
     Layout = "~/Views/Admin/_Layout.cshtml";
 }
-<div class="col-11">
+<div class="col-12">
     <div class="row">
         <div class="col">
-            <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+            <div class="card border-warning pl-2 m-2">
+                <div class="card-body">
+                    <div id="chartContainer" style="height: 200px; width: 100%;"></div>
+                </div>
+            </div>
         </div>
         <div class="col">
-            <div id="lineContainer" style="height: 370px; width: 100%;"></div>
+            <div class="card border-warning m-2">
+                <div class="card-body">
+                    <div id="lineContainer" style="height: 200px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card border-warning pl-2 m-2">
+                <div class="card-body">
+                    <div id="userContainer" style="height: 200px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
-    <script>
-        window.onload = function () {
-            var barDataPoints = [];
-            var lineDataPoints = [];
+        <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+        <script>
+            window.onload = function () {
+                // Populate data for the bar chart
+                var barDataPoints = [];
+                @foreach (var product in Model.UsersPerProduct.Keys)
+                    {
+                    <text>barDataPoints.push({ label: "@product.Name", y: @Model.UsersPerProduct[product].Count }); </text>
+                }
 
-            // Populate data for the bar chart
-            @foreach (var product in Model.UsersPerProduct.Keys)
-            {
-                <text>barDataPoints.push({ label: "@product.Name", y: @Model.UsersPerProduct[product].Count });</text>
-            }
+                                                    var barChart = new CanvasJS.Chart("chartContainer", {
+                    animationEnabled: true,
+                    title: {
+                        text: "Product subscriptions"
+                    },
+                    axisY: {
+                        title: "Subscribers",
+                        gridThickness: 0
+                    },
+                    data: [{
+                        type: "bar",
+                        indexLabel: "{y}",
+                        dataPoints: barDataPoints
+                    }]
+                });
+                barChart.render();
 
-            var barChart = new CanvasJS.Chart("chartContainer", {
-                animationEnabled: true,
-                title: {
-                    text: "Product subscriptions"
-                },
-                axisY: {
-                    title: "Subscribers",
-                    gridThickness: 0
-                },
-                data: [{
-                    type: "bar",
-                    indexLabel: "{y}",
-                    dataPoints: barDataPoints
-                }]
-            });
-            barChart.render();
+                // Populate data for the line chart
+                var lineDataPoints = @Html.Raw(Json.Serialize(Model.LineGraphData));
 
-                 var lineDataPoints = @Html.Raw(Json.Serialize(Model.LineDataPoints));
-
-                // Create line chart
                 var lineChart = new CanvasJS.Chart("lineContainer", {
                     animationEnabled: true,
                     title: {
-                        text: "Product Trends By Day"
+                        text: "Subscription Trends"
+                    },
+                    axisX: {
+                        title: "Day",
+                        interval: 1,
+                        intervalType: "day",
+                    },
+                    axisY: {
+                        title: "Subscription Count"
                     },
                     toolTip: {
                         shared: true
                     },
                     data: lineDataPoints
                 });
-                // Render line chart
                 lineChart.render();
-            }
 
-    </script>
+                // Populate data for the total subscriptions chart
+                var userDataPoints = @Html.Raw(Json.Serialize(Model.UserDataPoints));
+
+                var subsChart = new CanvasJS.Chart("userContainer", {
+                    animationEnabled: true,
+                    title: {
+                        text: "Total subscriptions"
+                    },
+                    axisX: {
+                        title: "Day",
+                        interval: 1,
+                        intervalType: "day"
+                    },
+                    axisY: {
+                        title: "Subscribers",
+                    },
+                    data: [{
+                        type: "line",
+                        indexLabel: "{y}",
+                        dataPoints: userDataPoints
+                    }]
+                });
+                subsChart.render();
+            }
+     
+        </script>
 }

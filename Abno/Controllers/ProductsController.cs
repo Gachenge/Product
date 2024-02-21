@@ -141,7 +141,8 @@ namespace Abno.Controllers
                 Name = product.Name,
                 Description = product.Description,
                 IsAvailable = product.IsAvailable,
-                Image = product.Image
+                Image = product.Image,
+                Link = product.Link
             };
 
             return View(viewModel);
@@ -177,6 +178,7 @@ namespace Abno.Controllers
                     product.Name = viewModel.Name;
                     product.Description = viewModel.Description;
                     product.IsAvailable = viewModel.IsAvailable;
+                    product.Link = viewModel.Link;
 
                     if (image != null && image.Length > 0)
                     {

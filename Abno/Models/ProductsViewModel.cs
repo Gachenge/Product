@@ -8,6 +8,5 @@ namespace Abno.Models
         public int PageNumber { get; set; }
         public List<Product> Products { get; set; }
         public Product Product { get; set; }
-
     }
 }

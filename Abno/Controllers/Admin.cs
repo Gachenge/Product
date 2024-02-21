@@ -164,64 +164,82 @@ namespace Abno.Controllers
             return Json(new { redirectTo = Url.Action(nameof(Index)) });
         }
 
-        private bool UserExists(string id) {
+        private bool UserExists(string id)
+        {
             return _context.Users.Any(u => u.Id == id);
-     
-       }
+
+        }
 
         public async Task<IActionResult> Index()
         {
             var totalUsers = await _context.Users.CountAsync();
             var totalProducts = await _context.Product.CountAsync();
 
-            var userProducts = await _context.UserProducts.Include(up => up.Product).Include(up => up.ProductUser).ToListAsync();
+            var userProducts = await _context.UserProducts
+                .Include(up => up.Product)
+                .Include(up => up.ProductUser)
+                .ToListAsync();
 
+            List<DataSeries> userDataPoints = new List<DataSeries>();
+            foreach (var usprod in userProducts)
+            {
+                var count = 0;
+                List<DataPoint> dataPoints = new List<DataPoint>();
+                foreach (var prod in usprod.CreatedAt.ToString("yy-MM-dd"))
+                {
+                    count++;
+                    
+                }
+                dataPoints.Add(new DataPoint(usprod.CreatedAt.ToString("yy-MM-dd"), count));
+            }
+
+            var viewModel = new AdminViewModel
+            {
+                Product = new Product(),
+                UsersPerProduct = GetUserProductsDictionary(userProducts),
+                TotalProducts = totalProducts,
+                TotalUsers = totalUsers,
+                UserProducts = userProducts,
+                LineGraphData = await GetLineGraphData(),
+                UserDataPoints = userDataPoints
+            };
+            return View(viewModel);
+        }
+
+        private Dictionary<Product, List<User>> GetUserProductsDictionary(List<UserProduct> userProducts)
+        {
             Dictionary<Product, List<User>> usersPerProduct = new Dictionary<Product, List<User>>();
-
             foreach (var userProduct in userProducts)
             {
                 if (!usersPerProduct.ContainsKey(userProduct.Product))
                 {
                     usersPerProduct[userProduct.Product] = new List<User>();
                 }
-
                 usersPerProduct[userProduct.Product].Add(userProduct.ProductUser);
             }
-            // Prepare data points for the line chart
-            var lineDataPoints = new List<object>();
-
-            foreach (var userProduct in userProducts)
-            {
-                var createdAt = userProduct.CreatedAt.Date;
-                var productName = userProduct.Product.Name;
-
-                var existingProductData = lineDataPoints.FirstOrDefault(p => ((dynamic)p).name == productName);
-
-                if (existingProductData == null)
-                {
-                    // If product name does not exist, create a new data point
-                    var productLineData = new List<LineChartDataPoint>();
-                    productLineData.Add(new LineChartDataPoint { Label = createdAt.ToString(), Y = 1, DataPoints = new List<LineChartDataPoint>() });
-                    lineDataPoints.Add(new { type = "line", name = productName, showInLegend = true, dataPoints = productLineData });
-                }
-                else
-                {
-                    // If product name already exists, add data point to existing product
-                    ((List<LineChartDataPoint>)((dynamic)existingProductData).dataPoints).Add(new LineChartDataPoint { Label = createdAt.ToString(), Y = 1 });
-                }
-            }
-
-            var viewModel = new AdminViewModel
-            {
-                Product = new Product(),
-                UsersPerProduct = usersPerProduct,
-                totalProducts = totalProducts,
-                totalUsers = totalUsers,
-                UserProducts = userProducts,
-                LineDataPoints = lineDataPoints
-            };
-            return View(viewModel);
+            return usersPerProduct;
         }
 
+        private async Task<List<DataSeries>> GetLineGraphData()
+        {
+            List<DataSeries> lineGraphData = new List<DataSeries>();
+            foreach (var product in await _context.Product.ToListAsync())
+            {
+                DataSeries dataSeries = new DataSeries();
+                dataSeries.Name = product.Name;
+                List<DataPoint> dataPoints = new List<DataPoint>();
+                foreach (var sub in await _context.UserProducts.ToListAsync())
+                {
+                    if (product.Id == sub.ProductId)
+                    {
+                        // Adjust DataPoint constructor based on your actual implementation
+                        dataPoints.Add(new DataPoint(sub.CreatedAt.ToString("yy-MM-dd"), sub.ProductUser.ToString().Count()));
+                    }
+                }
+                dataSeries.DataPoints = dataPoints;
+                lineGraphData.Add(dataSeries);
+            }
+            return lineGraphData;
         }
     }
+}

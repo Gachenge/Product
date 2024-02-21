@@ -3,11 +3,19 @@
 @inject UserManager<User> UserManager
 
 @{
-    Layout = "~/Views/Admin/_Layout.cshtml";
     ViewData["Title"] = "Product management";
+    var usr = await UserManager.GetUserAsync(User);
+    if (usr.Role == UserRole.Admin)
+    {
+        Layout = "~/Views/Admin/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
 }
 
-<div class="container align-items-center col-11">
+<div class="container align-items-center col-12">
     @{
         var product = ViewData["product"] as Abno.Models.Product;
         if (product.IsAvailable)
@@ -20,7 +28,7 @@
         }
     }
 
-    <div>
+    <div class="text-center">
         <img src="@product.Image" class="img-thumbnail img-fluid" />
     </div>
     <h5 class="text-center">@product.Name</h5>
@@ -41,6 +49,21 @@
             <a data-bs-toggle="modal" data-bs-target="#editModal_@product.Id" class="btn btn-info">Edit</a>
             <a data-bs-toggle="modal" data-bs-target="#deleteModal_@product.Id" class="btn btn-danger">Delete</a>
             <br />
+        }
+        @if (user.UserProducts != null)
+        {
+            foreach (var prod in user.UserProducts)
+            {
+                if (prod.ProductId == product.Id)
+                {
+                    if (product.Link != null)
+                    {
+                        <div class="mt-3 float-right">
+                            <a href="@product.Link" class="btn btn-primary">Access @product.Name here</a>
+                        </div>
+                    }
+                }
+            }
         }
     }
     
@@ -80,6 +103,11 @@
                             <label asp-for="Image" class="control-label"></label>
                             <input type="file" asp-for="Image" class="form-control" name=image value="@product.Image"/>
                             <span asp-validation-for="Image" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Link" class="control-label"></label>
+                            <input asp-for="Link" class="form-control" name=link value="@product.Link" />
+                            <span asp-validation-for="Link" class="text-danger"></span>
                         </div>
                         
                 <div class="modal-footer">

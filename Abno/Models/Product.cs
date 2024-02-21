@@ -11,13 +11,14 @@ namespace Abno.Models
         [MaxLength(50)]
         public string Name { get; set; }
         [Required]
-        [MaxLength (250)]
+        [MaxLength (1000)]
         public string Description { get; set; }
         [Required]
         public bool IsAvailable { get; set; }
         public string Image { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public string Link { get; set; }
 
         public ICollection<UserProduct> UserProducts { get; set; }
     }

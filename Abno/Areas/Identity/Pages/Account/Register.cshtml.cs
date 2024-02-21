@@ -75,16 +75,16 @@ namespace Abno.Areas.Identity.Pages.Account
             returnUrl = returnUrl ?? Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            // Check if the email is already registered
-            var existingEmail = await _userManager.FindByEmailAsync(Input.Email);
-            if (existingEmail != null)
-            {
-                ModelState.AddModelError(string.Empty, "Email is already registered.");
-                return Page();
-            }
-
             if (ModelState.IsValid)
             {
+                // Check if the email is already registered
+                var existingEmail = await _userManager.FindByEmailAsync(Input.Email);
+                if (existingEmail != null)
+                {
+                    ModelState.AddModelError(string.Empty, "Email is already registered.");
+                    return Page();
+                }
+
                 var user = new User { UserName = Input.Email, Email = Input.Email };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
