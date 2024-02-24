@@ -1,0 +1,22 @@
+﻿@using Abno.Common
+@if (TempData[Constants.Success] != null)
+{
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+        }
+        toastr.success("@TempData[Constants.Success]");
+    </script>
+}
+
+@if (TempData[Constants.Error] != null)
+{
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true
+        }
+        toastr.error("@TempData[Constants.Error]");
+    </script>
+}

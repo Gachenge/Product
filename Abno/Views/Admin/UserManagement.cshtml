@@ -1,12 +1,19 @@
-﻿@{
+﻿@model Abno.Models.AddNewUserViewModel
+@{
     ViewData["Title"] = "UserManagement";
     Layout = "~/Views/Admin/_Layout.cshtml";
 }
 
-<div class="container col-12">
-<div class="col py-3 border border-success mt-3 bg-secondary text-white">
-    <div id="tableContainer">
-        <table id="myTable" class="display">
+@Html.AntiForgeryToken()
+
+<div class="container col-12 mb-3">
+    <div class="m-auto p-2 mb-3">
+        <button type="button" class="btn btn-primary float-right" data-bs-toggle="modal" data-bs-target="#exampleModal">Add User</button>
+    </div>
+    <br />
+    <div class="col py-3 border border-success text-dark">
+    <div id="tableContainer mb-3">
+            <table id="myTable" class="table table-responsive display">
             <thead>
                 <tr>
                     <th>Avatar</th>
@@ -17,9 +24,10 @@
                 </tr>
             </thead>
             <tbody>
-                @{
-                    var subscriptions = ViewData["Subscriptions"] as Dictionary<User, List<Product>>;
-                    foreach (var u in subscriptions)
+                    @{
+                        var subscriptions = ViewData["Subscriptions"] as Dictionary<User, List<Product>>;
+                       
+                        foreach (var u in subscriptions)
                     {
                         <tr>
                             <td>
@@ -78,17 +86,17 @@
                             </div>
                             <div class="modal fade" id="deleteModal_@u.Key.Id" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
-                                <div class="modal-content bg-secondary text-white">
+                                    <div class="modal-content text-dark text-center">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Delete User</h5>
+                                            <h4 class="modal-title" id="exampleModalLabel">Delete User</h4>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body">
-                                        Are you sure to delete?
+                                        <div class="modal-body h5">
+                                        This action cannot be undone.
                                         <form method="post" class="ajax-form" asp-action="DeleteConfirmed" asp-route-id="@u.Key.Id" id="deleteUserForm_@u.Key.Id">
                                                 <input type="hidden" id="deleteUserId" name="id" value="@u.Key.Id" />
                                                 <div class="modal-footer">
-                                                    <input type="submit" value="Delete" class="btn btn-primary" />
+                                                    <input type="submit" value="Delete" class="btn btn-danger" />
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                 </div>
                                             </form>
@@ -101,6 +109,46 @@
                 }
             </tbody>
         </table>
+        <br />
     </div>
+    <br />
 </div>
+
+      <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Create New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="Create" class="ajax-form" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="@Model.Email" class="control-label"></label>
+                            <input asp-for="@Model.Email" class="form-control" />
+                            <span asp-validation-for="@Model.Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="@Model.Password" class="control-label"></label>
+                            <input asp-for="@Model.Password" class="form-control"></input>
+                            <span asp-validation-for="@Model.Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="@Model.ConfirmPassword" class="control-label"></label>
+                            <input asp-for="@Model.ConfirmPassword" class="form-control"></input>
+                            <span asp-validation-for="@Model.ConfirmPassword" class="text-danger"></span>
+                        </div>
+                       
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

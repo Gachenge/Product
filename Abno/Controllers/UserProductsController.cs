@@ -9,6 +9,7 @@ using Abno.Data;
 using Abno.Models;
 using System.Security.Claims;
 using Microsoft.CodeAnalysis;
+using Abno.Common;
 
 namespace Abno.Controllers
 {
@@ -66,18 +67,30 @@ namespace Abno.Controllers
             {
                 return NotFound();
             }
-
+            var users = await _context.Users.Include(u => u.UserProducts).ToListAsync();
+            
             var userProduct = await _context.UserProducts
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(up => up.Product)
+                .FirstOrDefaultAsync(up => up.ProductId == id);
+
+            var subscribers = await _context.Users
+                .Where(u => u.UserProducts.Any(up => up.ProductId == id))
+                .ToListAsync();
+
             if (userProduct == null)
             {
                 return NotFound();
             }
-            var useProd = userProduct;
 
-            ViewBag.UseProd = useProd;
-           
-            return View();
+            
+
+            var viewModel = new UserProductViewModel
+            {
+                userProduct = userProduct,
+                subscribers= subscribers
+            };
+
+            return View(viewModel);
         }
 
         // GET: UserProducts/Create
@@ -117,15 +130,28 @@ namespace Abno.Controllers
             
             if (ModelState.IsValid)
             {
+                var existingSubscription = await _context.UserProducts
+                    .AnyAsync(up => up.ProductId == viewModel.userProduct.ProductId && up.UserId == viewModel.userProduct.UserId);
+
+                if (existingSubscription)
+                {
+                    ModelState.AddModelError("", "User is already subscribed to this product.");
+
+                    ViewBag.UserId = new SelectList(await _context.Users.ToListAsync(), "Id", "UserName", viewModel.userProduct.UserId);
+                    TempData[Constants.Error] = "User already subscribed";
+                    return View(viewModel);
+                }
 
                 viewModel.userProduct.CreatedAt = DateTime.Now;
 
                 _context.Add(viewModel.userProduct);
                 await _context.SaveChangesAsync();
-                return Json(new { redirectTo = Url.Action(nameof(Index)) });
+                TempData[Constants.Success] = "New subscription";
+                return RedirectToAction("Index");
             }
 
             ViewBag.UserId = new SelectList(await _context.Users.ToListAsync(), "Id", "UserName", viewModel.userProduct.UserId);
+            TempData[Constants.Error] = "An error occurred";
             return View();
         }
 
@@ -189,7 +215,8 @@ namespace Abno.Controllers
                         throw;
                     }
                 }
-                return Json(new { redirectTo = Url.Action(nameof(Index)) });
+                TempData[Constants.Success] = "updated successfully";
+                return RedirectToAction("Index");
             }
             return View(userProduct);
         }
@@ -234,7 +261,8 @@ namespace Abno.Controllers
             var userProduct = await _context.UserProducts.FindAsync(id);
             _context.UserProducts.Remove(userProduct);
             await _context.SaveChangesAsync();
-            return Json(new { redirectTo = Url.Action(nameof(Index)) });
+            TempData[Constants.Success] = "Subscription stopped successfully";
+            return RedirectToAction("Index");
         }
 
         private bool UserProductExists(int id)

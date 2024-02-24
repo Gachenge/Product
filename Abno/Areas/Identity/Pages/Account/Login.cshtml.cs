@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Abno.Models;
+using Abno.Common;
 
 namespace Abno.Areas.Identity.Pages.Account
 {
@@ -87,9 +88,10 @@ namespace Abno.Areas.Identity.Pages.Account
                     var user = await _signInManager.UserManager.FindByNameAsync(Input.UserName);
                     if (user.Role == UserRole.Admin)
                     {
+                        TempData[Constants.Success] = "Welcome " + user.UserName;
                         return LocalRedirect("~/Admin");
                     }
-            
+                    TempData[Constants.Success] = "Welcome " + user.UserName;
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

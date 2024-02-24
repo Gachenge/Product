@@ -1,0 +1,57 @@
+﻿@model Abno.Models.UserProductViewModel
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Admin/_Layout.cshtml";
+}
+
+<div class="container col-12 mb-3;">
+    <div class="col py-3  border border-success mt-3 text-dark">
+        <div id="tableContainer">
+            <h5 class="text-center">@Model.userProduct.Product.Name</h5>
+            <table id="myTable" class="table table-responsive display">
+                <thead>
+                    <tr>
+                        <th>Subscribers</th>
+                        <th>Action</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.subscribers)
+                    {
+                        <tr>
+                            <td>
+                                @user
+                            </td>
+                            <td>
+                                <a data-bs-toggle="modal" data-bs-target="#exampleModal" type="button" class="btn btn-danger"></a>
+                            </td>
+                        </tr>
+                    }
+                   
+                </tbody>
+                </table>
+                </div>
+                </div>
+                </div>
+               
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="deleteForm_@userProduct.Id" method="post" action="@Url.Action("Delete", "UserProducts", new { id = userProduct.Id })">
+                    <input type="hidden" name="id" value="@userProduct.Id" />
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <input type="submit" value="Delete" class="btn btn-danger" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

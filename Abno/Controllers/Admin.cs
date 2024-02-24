@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore.Internal;
+using Abno.Common;
 
 namespace Abno.Controllers
 {
@@ -17,10 +20,14 @@ namespace Abno.Controllers
     {
         private readonly ApplicationDbContext _context;
         private UserRole _role;
+        private SignInManager<User> _signManager;
+        private UserManager<User> _userManager;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signManager)
         {
             _context = context;
+            _userManager = userManager;
+            _signManager = signManager;
         }
         private void getUserRole()
         {
@@ -101,6 +108,7 @@ namespace Abno.Controllers
 
             if (!ModelState.IsValid)
             {
+                TempData[Constants.Error] = "An error occurred";
                 return BadRequest(ModelState);
             }
 
@@ -117,10 +125,13 @@ namespace Abno.Controllers
 
                 _context.Update(updateUser);
                 await _context.SaveChangesAsync();
-                return Json(new { redirectTo = Url.Action(nameof(Index)) });
+                TempData[Constants.Success] = "User updated successfully";
+
+                return RedirectToAction("UserManagement");
             }
             catch (Exception ex)
             {
+                TempData[Constants.Error] = "An error occurred";
                 return StatusCode(500);
             }
         }
@@ -161,7 +172,8 @@ namespace Abno.Controllers
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-            return Json(new { redirectTo = Url.Action(nameof(Index)) });
+            TempData[Constants.Success] = "Deleted successfully";
+            return RedirectToAction("UserManagement");
         }
 
         private bool UserExists(string id)
@@ -180,33 +192,75 @@ namespace Abno.Controllers
                 .Include(up => up.ProductUser)
                 .ToListAsync();
 
-            List<DataSeries> userDataPoints = new List<DataSeries>();
-            foreach (var usprod in userProducts)
+            var subscriptionsPerDayPerProduct = userProducts
+                .GroupBy(up => new { ProductId = up.Product.Id, Date = up.CreatedAt.Date })
+                .Select(g => new { ProductId = g.Key.ProductId, Date = g.Key.Date, Count = g.Count() })
+                .ToList();
+
+            var lineGraphData = new Dictionary<String, List<DataPoint>>();
+            foreach (var item in subscriptionsPerDayPerProduct)
             {
-                var count = 0;
-                List<DataPoint> dataPoints = new List<DataPoint>();
-                foreach (var prod in usprod.CreatedAt.ToString("yy-MM-dd"))
+                var product = await _context.Product.FindAsync(item.ProductId);
+                if (product != null)
                 {
-                    count++;
-                    
+                    if (!lineGraphData.ContainsKey(product.Name))
+                    {
+                        lineGraphData[product.Name] = new List<DataPoint>();
+                    }
+                    lineGraphData[product.Name].Add(new DataPoint(item.Date.ToShortDateString(), item.Count));
                 }
-                dataPoints.Add(new DataPoint(usprod.CreatedAt.ToString("yy-MM-dd"), count));
             }
 
-            var viewModel = new AdminViewModel
-            {
-                Product = new Product(),
-                UsersPerProduct = GetUserProductsDictionary(userProducts),
-                TotalProducts = totalProducts,
-                TotalUsers = totalUsers,
-                UserProducts = userProducts,
-                LineGraphData = await GetLineGraphData(),
-                UserDataPoints = userDataPoints
-            };
-            return View(viewModel);
-        }
+            Dictionary<string, int> productSubscriberCounts = new Dictionary<string, int>();
 
-        private Dictionary<Product, List<User>> GetUserProductsDictionary(List<UserProduct> userProducts)
+            foreach (var userProduct in userProducts)
+            {
+                var productName = userProduct.Product.Name;
+
+                if (productSubscriberCounts.ContainsKey(productName))
+                {
+                    productSubscriberCounts[productName]++;
+                }
+                else
+                {
+                    productSubscriberCounts[productName] = 1;
+                }
+            }
+
+            int totalSubscribers = productSubscriberCounts.Sum(kvp => kvp.Value);
+
+            Dictionary<string, double> productSubscriberPercentages = new Dictionary<string, double>();
+
+            foreach (var kvp in productSubscriberCounts)
+            {
+                double percentage = ((double)kvp.Value / totalSubscribers) * 100;
+                productSubscriberPercentages.Add(kvp.Key, percentage);
+            }
+
+            List<DataPoint> dataPoints = new List<DataPoint>();
+            foreach (var kvp in productSubscriberPercentages)
+            {
+                dataPoints.Add(new DataPoint(kvp.Key, kvp.Value));
+            }
+
+
+            var viewModel = new AdminViewModel
+                {
+                    Product = new Product(),
+                    UsersPerProduct = GetUserProductsDictionary(userProducts),
+                    TotalProducts = totalProducts,
+                    TotalUsers = totalUsers,
+                    UserProducts = userProducts,
+                    DataPoints = JsonConvert.SerializeObject(dataPoints),
+                    LineGraphData = JsonConvert.SerializeObject(lineGraphData)
+
+            };
+
+                return View(viewModel);
+            }
+
+
+            private Dictionary<Product, List<User>> GetUserProductsDictionary(List<UserProduct> userProducts)
         {
             Dictionary<Product, List<User>> usersPerProduct = new Dictionary<Product, List<User>>();
             foreach (var userProduct in userProducts)
@@ -220,26 +274,43 @@ namespace Abno.Controllers
             return usersPerProduct;
         }
 
-        private async Task<List<DataSeries>> GetLineGraphData()
+        //// GET: Products/Create
+        //[Authorize]
+        //public IActionResult Create()
+        //{
+        //    return View();
+        //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(AddNewUserViewModel user)
         {
-            List<DataSeries> lineGraphData = new List<DataSeries>();
-            foreach (var product in await _context.Product.ToListAsync())
+            getUserRole();
+            if (_role != UserRole.Admin)
             {
-                DataSeries dataSeries = new DataSeries();
-                dataSeries.Name = product.Name;
-                List<DataPoint> dataPoints = new List<DataPoint>();
-                foreach (var sub in await _context.UserProducts.ToListAsync())
-                {
-                    if (product.Id == sub.ProductId)
-                    {
-                        // Adjust DataPoint constructor based on your actual implementation
-                        dataPoints.Add(new DataPoint(sub.CreatedAt.ToString("yy-MM-dd"), sub.ProductUser.ToString().Count()));
-                    }
-                }
-                dataSeries.DataPoints = dataPoints;
-                lineGraphData.Add(dataSeries);
+                return Unauthorized();
             }
-            return lineGraphData;
+            if (ModelState.IsValid)
+            {
+                var existingEmail = _context.Users.Where(u => u.Email == user.Email).FirstOrDefault();
+                if (existingEmail != null)
+                {
+                    ModelState.AddModelError("", "Email is already registered");
+                    TempData[Constants.Error] = "An error occurred";
+                    return View();
+                }
+                var usr = new User { UserName=user.Email, Email=user.Email };
+                var result = await _userManager.CreateAsync(usr, user.Password);
+
+                if (result.Succeeded)
+                {
+                    TempData[Constants.Success] = "User added successfully";
+                    return RedirectToAction("UserManagement");
+                }
+             
+            }
+            TempData[Constants.Error] = "An error occurred";
+            return View("UserManagement");
         }
     }
 }

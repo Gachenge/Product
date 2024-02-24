@@ -8,7 +8,7 @@
 
 <br />
 
-<div class="container col-12">
+<div class="container col-12 mb-3">
     <div class="row">
         <div class="col">
             <div class="text-lg-right">
@@ -35,6 +35,7 @@
                     </div>
                 </div>
             }
+           
         </div>
 
         <div class="row">
@@ -51,7 +52,7 @@
                 </nav>
             </div>
         </div>
-
+        <br />
     }
     else
     {
@@ -65,7 +66,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form asp-action="Create" class="ajax-form" method="post" enctype="multipart/form-data">
+                    <form asp-action="Create" method="post" id="newUser" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
                             <label asp-for="@Model.Product.Name" class="control-label"></label>

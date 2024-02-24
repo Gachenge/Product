@@ -14,6 +14,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Abno.Common;
 
 namespace Abno.Controllers
 {
@@ -43,7 +45,7 @@ namespace Abno.Controllers
         // GET: Products
         public async Task<IActionResult> Index(int? page)
         {
-            int pageSize = 10;
+            int pageSize = 9;
             int pageNumber = page ?? 1;
 
             var viewModel = new ProductsViewModel
@@ -100,7 +102,16 @@ namespace Abno.Controllers
         public async Task<IActionResult> Create(Product product, IFormFile image)
         {
             if (ModelState.IsValid)
-            {                
+            {
+                var existingProduct = _context.Product
+                    .Where(p => p.Name == product.Name);
+                if (existingProduct != null)
+                {
+                    ModelState.AddModelError("", "Product already exists");
+                    TempData[Constants.Error] = "Product already exists";
+                    return RedirectToAction("Index", product);
+                }
+
                 if (image != null && image.Length > 0)
                 {
                     var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
@@ -116,9 +127,11 @@ namespace Abno.Controllers
                 product.CreatedAt = DateTime.Now;
                 _context.Add(product);
                 await _context.SaveChangesAsync();
-                return Json(new { redirectTo = Url.Action(nameof(Index)) });
+                TempData[Constants.Success] = "Product created";
+                return RedirectToAction("Index");
             }
-            return View(product);
+            TempData[Constants.Error] = "An error occured check your input";
+            return RedirectToAction("Index", product);
         }
 
         [Authorize]
@@ -196,9 +209,9 @@ namespace Abno.Controllers
                     product.UpdatedAt = DateTime.Now;
                     _context.Update(product);
                     await _context.SaveChangesAsync();
-                    var redirectUrl = Url.Action(nameof(Details), new { id = product.Id });
+                    TempData[Constants.Success] = "Updated successfully";
 
-                    return Json(new { redirectTo = redirectUrl });
+                    return RedirectToAction("Details", new { id = product.Id });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -212,7 +225,7 @@ namespace Abno.Controllers
                     }
                 }
             }
-
+            TempData[Constants.Error] = "An error occured";
             return View(viewModel);
         }
 
@@ -251,11 +264,12 @@ namespace Abno.Controllers
 
                 _context.Product.Remove(product);
                 await _context.SaveChangesAsync();
-
-                return Json(new { redirectTo = Url.Action(nameof(Index)) });
+                TempData[Constants.Success] = "Deleted successfully";
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                TempData[Constants.Error] = "An error occurred";
                 return RedirectToAction(nameof(Index));
             }
         }

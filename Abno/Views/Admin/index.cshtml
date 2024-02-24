@@ -1,4 +1,5 @@
 ﻿@model Abno.Models.AdminViewModel
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
 
 @{
     Layout = "~/Views/Admin/_Layout.cshtml";
@@ -8,14 +9,14 @@
         <div class="col">
             <div class="card border-warning pl-2 m-2">
                 <div class="card-body">
-                    <div id="chartContainer" style="height: 200px; width: 100%;"></div>
+                    <div id="chartContainer" style="height: 400px; width: 100%;"></div>
                 </div>
             </div>
         </div>
         <div class="col">
             <div class="card border-warning m-2">
                 <div class="card-body">
-                    <div id="lineContainer" style="height: 200px; width: 100%;"></div>
+                    <div id="pieContainer" style="height: 400px; width: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -24,7 +25,7 @@
         <div class="col">
             <div class="card border-warning pl-2 m-2">
                 <div class="card-body">
-                    <div id="userContainer" style="height: 200px; width: 100%;"></div>
+                    <div id="lineContainer" style="height: 400px; width: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -35,80 +36,87 @@
 </div>
 
 @section Scripts {
-        <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
-        <script>
-            window.onload = function () {
-                // Populate data for the bar chart
-                var barDataPoints = [];
-                @foreach (var product in Model.UsersPerProduct.Keys)
-                    {
-                    <text>barDataPoints.push({ label: "@product.Name", y: @Model.UsersPerProduct[product].Count }); </text>
-                }
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
-                                                    var barChart = new CanvasJS.Chart("chartContainer", {
-                    animationEnabled: true,
-                    title: {
-                        text: "Product subscriptions"
-                    },
-                    axisY: {
-                        title: "Subscribers",
-                        gridThickness: 0
-                    },
-                    data: [{
-                        type: "bar",
-                        indexLabel: "{y}",
-                        dataPoints: barDataPoints
-                    }]
-                });
-                barChart.render();
+    <script>
+        window.onload = function () {
+            // Populate data for the bar chart
+            var barDataPoints = [];
+        @foreach (var product in Model.UsersPerProduct.Keys)
+        {
+            <text>barDataPoints.push({ label: "@product.Name", y: @Model.UsersPerProduct[product].Count }); </text>
+        }
 
-                // Populate data for the line chart
-                var lineDataPoints = @Html.Raw(Json.Serialize(Model.LineGraphData));
+                    var barChart = new CanvasJS.Chart("chartContainer", {
+                animationEnabled: true,
+                title: {
+                    text: "Product subscriptions"
+                },
+                axisY: {
+                    title: "Subscribers",
+                    gridThickness: 0
+                },
+                data: [{
+                    type: "bar",
+                    indexLabel: "{y}",
+                    dataPoints: barDataPoints
+                }]
+            });
+            barChart.render();
 
-                var lineChart = new CanvasJS.Chart("lineContainer", {
-                    animationEnabled: true,
-                    title: {
-                        text: "Subscription Trends"
-                    },
-                    axisX: {
-                        title: "Day",
-                        interval: 1,
-                        intervalType: "day",
-                    },
-                    axisY: {
-                        title: "Subscription Count"
-                    },
-                    toolTip: {
-                        shared: true
-                    },
-                    data: lineDataPoints
-                });
-                lineChart.render();
+            var pieChart = new CanvasJS.Chart("pieContainer", {
+                theme: "light2",
+                exportEnabled: false,
+                animationEnabled: true,
+                title: {
+                    text: "Products Marketshare"
+                },
+                data: [{
+                    type: "pie",
+                    startAngle: 180,
+                    toolTipContent: "<b>{label}</b>: {y}%",
+                    showInLegend: "true",
+                    legendText: "{label}",
+                    indexLabel: "{label} - {y}%",
+                    dataPoints: @Html.Raw(Model.DataPoints)
+                        }]
+            });
+            pieChart.render();
 
-                // Populate data for the total subscriptions chart
-                var userDataPoints = @Html.Raw(Json.Serialize(Model.UserDataPoints));
+            var lineChart = new CanvasJS.Chart("lineContainer", {
+                animationEnabled: true,
+                title: {
+                    text: "Product Trends By Day"
+                },
+                axisX: {
+                    title: "Date"
+                },
+                axisY: {
+                    title: "Subscribers"
+                },
+                toolTip: {
+                    shared: true
+                },
+                data: []
+            });
 
-                var subsChart = new CanvasJS.Chart("userContainer", {
-                    animationEnabled: true,
-                    title: {
-                        text: "Total subscriptions"
-                    },
-                    axisX: {
-                        title: "Day",
-                        interval: 1,
-                        intervalType: "day"
-                    },
-                    axisY: {
-                        title: "Subscribers",
-                    },
-                    data: [{
+            var lineGraphData = @Html.Raw(Model.LineGraphData);
+            for (var productName in lineGraphData) {
+                if (lineGraphData.hasOwnProperty(productName)) {
+                    var dataPoints = lineGraphData[productName].map(function (point) {
+                        return { label: point.label, y: point.y };
+                    });
+
+                    lineChart.options.data.push({
                         type: "line",
-                        indexLabel: "{y}",
-                        dataPoints: userDataPoints
-                    }]
-                });
-                subsChart.render();
+                        name: productName,
+                        showInLegend: true,
+                        dataPoints: dataPoints
+                    });
+                }
             }
-     
-        </script>
+
+            lineChart.render();
+        }
+    </script>
 }

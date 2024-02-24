@@ -7,5 +7,6 @@ namespace Abno.Models
         public SelectList UserSelect { get; set; }
         public Product Product { get; set; }
         public UserProduct userProduct { get; set; }
+        public SelectList UserId { get; internal set; }
     }
 }
