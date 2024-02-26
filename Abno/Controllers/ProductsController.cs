@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Abno.Common;
+using Microsoft.AspNetCore.Identity;
 
 namespace Abno.Controllers
 {
@@ -23,13 +24,15 @@ namespace Abno.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
+        private readonly UserManager<User> userManager;
         private UserRole _userRole;
 
-        public ProductsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public ProductsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment,
+            UserManager<User> userManager)
         {
             _context = context;
-            _webHostEnvironment = webHostEnvironment; 
+            _webHostEnvironment = webHostEnvironment;
+            this.userManager = userManager;
         }
         
         private void getUserRole()
@@ -80,6 +83,7 @@ namespace Abno.Controllers
             {
                 return NotFound();
             }
+
             ViewData["product"] = product;
 
             var subscriberCount = subscriber.Count();
@@ -155,7 +159,8 @@ namespace Abno.Controllers
                 Description = product.Description,
                 IsAvailable = product.IsAvailable,
                 Image = product.Image,
-                Link = product.Link
+                Link = product.Link,
+                credentials = new Credentials()
             };
 
             return View(viewModel);
@@ -277,6 +282,61 @@ namespace Abno.Controllers
         private bool ProductExists(int id)
         {
             return _context.Product.Any(e => e.Id == id);
+        }
+
+        // GET: Credentials/Create
+        public IActionResult AddCredential(int productId)
+        {
+            var product = _context.Product.FirstOrDefault(p => p.Id == productId);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new CredentialsViewModel
+            {
+                ProductId = productId
+            };
+            return View(viewModel);
+        }
+
+        // POST: Credentials/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddCredential(CredentialsViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var product = await _context.Product.FirstOrDefaultAsync(p => p.Id == model.ProductId);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                var hashed = userManager.PasswordHasher.HashPassword(null, model.Password);
+                var existingUser = _context.Credentials
+                    .Where(u => u.UserName == model.UserName)
+                    .FirstOrDefault();
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("", "User already registered");
+                    return View(model);
+                }
+
+                var credentials = new Credentials
+                {
+                    ProductId = model.ProductId,
+                    UserName = model.UserName,
+                    Password = hashed
+                };
+
+                _context.Credentials.Add(credentials);
+                await _context.SaveChangesAsync();
+
+                TempData[Constants.Success] = "Credentials created successfully";
+                return RedirectToAction("Details", new { id = product.Id });
+            }
+
+            return View(model);
         }
     }
 }

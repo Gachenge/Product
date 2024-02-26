@@ -42,9 +42,9 @@
                                 }
                             </td>
                             <td>
-                                <a type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal_@u.Key.Id">Edit</a>
+                                    <a type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#exampleModal_@u.Key.Id">Edit</a>
 
-                                <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_@u.Key.Id">Delete</a>
+                                    <a type="button" class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#deleteModal_@u.Key.Id">Delete</a>
                             </td>
                         </tr>
                         <div class="modal fade" id="exampleModal_@u.Key.Id" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -96,7 +96,7 @@
                                         <form method="post" class="ajax-form" asp-action="DeleteConfirmed" asp-route-id="@u.Key.Id" id="deleteUserForm_@u.Key.Id">
                                                 <input type="hidden" id="deleteUserId" name="id" value="@u.Key.Id" />
                                                 <div class="modal-footer">
-                                                    <input type="submit" value="Delete" class="btn btn-danger" />
+                                                    <input type="submit" value="Delete" class="btn btn-danger text-white" />
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                 </div>
                                             </form>

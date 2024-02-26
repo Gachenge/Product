@@ -59,8 +59,12 @@
                     if (product.Link != null)
                     {
                         <div class="mt-3 float-right">
+                            <a asp-action="AddCredential" asp-controller="products" asp-route-productId="@product.Id" class="btn btn-outline-success mb-3">
+                                create credentials
+                            </a><br />
                             <a href="@product.Link" class="btn btn-primary">Access @product.Name here</a>
                         </div>
+                        
                     }
                 }
             }
@@ -138,5 +142,4 @@
             </div>
         </div>
     </div>
-
 </div>

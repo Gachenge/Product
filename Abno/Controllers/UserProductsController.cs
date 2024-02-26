@@ -244,7 +244,7 @@ namespace Abno.Controllers
 
             ViewBag.userProductId = userProduct.Id;
 
-            return View();
+            return RedirectToAction("Index");
         }
 
         // POST: UserProducts/Delete/5
@@ -259,6 +259,10 @@ namespace Abno.Controllers
             }
 
             var userProduct = await _context.UserProducts.FindAsync(id);
+            if (userProduct == null)
+            {
+                return Unauthorized();
+            }
             _context.UserProducts.Remove(userProduct);
             await _context.SaveChangesAsync();
             TempData[Constants.Success] = "Subscription stopped successfully";

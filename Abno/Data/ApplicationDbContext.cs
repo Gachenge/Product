@@ -31,5 +31,6 @@ namespace Abno.Data
         }
         public DbSet<Product> Product { get; set; }
         public DbSet<UserProduct> UserProducts { get; set; }
+        public DbSet<Credentials> Credentials { get; set; }
     }
 }

@@ -4,6 +4,8 @@
     Layout = "~/Views/Admin/_Layout.cshtml";
 }
 
+@Html.AntiForgeryToken()
+
 <div class="container col-12 mb-3;">
     <div class="col py-3  border border-success mt-3 text-dark">
         <div id="tableContainer">
@@ -44,11 +46,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="deleteForm_@userProduct.Id" method="post" action="@Url.Action("Delete", "UserProducts", new { id = userProduct.Id })">
-                    <input type="hidden" name="id" value="@userProduct.Id" />
+                <form method="post" asp-action="@Url.Action("Delete", "UserProducts", new { id = Model.userProduct.Id })">
+                    <input type="hidden" name="id" value="@Model.userProduct.Id" />
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <input type="submit" value="Delete" class="btn btn-danger" />
+                        <input type="submit" value="Delete" class="btn btn-danger" />Drop
                     </div>
                 </form>
             </div>
