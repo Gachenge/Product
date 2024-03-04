@@ -1,4 +1,6 @@
-﻿@model Abno.Models.AddNewUserViewModel
+﻿@using Microsoft.AspNetCore.Identity
+@model Abno.Models.AddNewUserViewModel
+@inject UserManager<User> UserManager
 @{
     ViewData["Title"] = "UserManagement";
     Layout = "~/Views/Admin/_Layout.cshtml";
@@ -11,16 +13,16 @@
         <button type="button" class="btn btn-primary float-right" data-bs-toggle="modal" data-bs-target="#exampleModal">Add User</button>
     </div>
     <br />
-    <div class="col py-3 border border-success text-dark">
+    <div class="col py-3 card shadow feedback text-dark">
     <div id="tableContainer mb-3">
             <table id="myTable" class="table table-responsive display">
             <thead>
                 <tr>
-                    <th>Avatar</th>
-                    <th>UserName</th>
-                    <th>Email</th>
-                    <th>Subscriptions</th>
-                    <th>Actions</th>
+                        <th class="text-center">Avatar</th>
+                        <th class="text-center">UserName</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Subscriptions</th>
+                        <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,7 +53,7 @@
                             <div class="modal-dialog">
                                 <div class="modal-content bg-secondary text-white">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
+                                            <h5 class="modal-title text-center" id="exampleModalLabel">Edit User</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -86,13 +88,25 @@
                             </div>
                             <div class="modal fade" id="deleteModal_@u.Key.Id" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
-                                    <div class="modal-content text-dark text-center">
+                                    <div class="modal-content text-dark">
                                         <div class="modal-header">
-                                            <h4 class="modal-title" id="exampleModalLabel">Delete User</h4>
+                                            <h4 class="modal-title text-center" id="exampleModalLabel">Delete User</h4>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body h5">
+                                        <div class="modal-body">
+                                            
+                                            @{
+                                                var usr = await UserManager.GetUserAsync(User);
+                                                if (usr.Id == u.Key.Id)
+                                                {
+                                                    <span class="text-danger h5 d-flex justify-content-center">You are about to delete yourself!</span><br />
+                                                }
+                                            }
+                                            <span class="text-danger h5 d-flex justify-content-center">
+
                                         This action cannot be undone.
+                                        </span>
+                                            <i class="ri-error-warning-line alert-warning d-flex justify-content-center"></i>
                                         <form method="post" class="ajax-form" asp-action="DeleteConfirmed" asp-route-id="@u.Key.Id" id="deleteUserForm_@u.Key.Id">
                                                 <input type="hidden" id="deleteUserId" name="id" value="@u.Key.Id" />
                                                 <div class="modal-footer">
@@ -118,7 +132,7 @@
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-center">
                     <h5 class="modal-title" id="exampleModalLabel">Create New User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>

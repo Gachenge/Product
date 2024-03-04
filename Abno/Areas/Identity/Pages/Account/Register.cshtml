@@ -26,9 +26,9 @@
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
             <button type="submit" class="btn btn-primary">Register</button>
+    <span class="d-flex justify-content-end"><a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Login</a></span>
         </form>
         <br />
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

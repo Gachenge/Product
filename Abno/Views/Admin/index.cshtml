@@ -5,32 +5,34 @@
     Layout = "~/Views/Admin/_Layout.cshtml";
 }
 <div class="col-12">
-    <div class="row">
-        <div class="col">
-            <div class="card border-warning pl-2 m-2">
-                <div class="card-body">
-                    <div id="chartContainer" style="height: 400px; width: 100%;"></div>
+    <h3 class="text-capitalize" style="font-weight:600">Dashboard</h3>
+    <div class="card shadow feedback">
+        <div class="row">
+            <div class="col">
+                <div class="card border-warning pl-2 m-2">
+                    <div class="card-body">
+                        <div id="chartContainer" style="height: 400px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card border-warning m-2">
+                    <div class="card-body">
+                        <div id="pieContainer" style="height: 400px; width: 100%;"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col">
-            <div class="card border-warning m-2">
-                <div class="card-body">
-                    <div id="pieContainer" style="height: 400px; width: 100%;"></div>
+        <div class="row">
+            <div class="col">
+                <div class="card border-warning pl-2 m-2">
+                    <div class="card-body">
+                        <div id="lineContainer" style="height: 400px; width: 100%;"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="card border-warning pl-2 m-2">
-                <div class="card-body">
-                    <div id="lineContainer" style="height: 400px; width: 100%;"></div>
-                </div>
+            <div class="col">
             </div>
-        </div>
-        <div class="col">
-
         </div>
     </div>
 </div>

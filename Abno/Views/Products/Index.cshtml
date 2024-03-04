@@ -22,11 +22,11 @@
 
     @if (Model.Products != null && Model.Products.Any())
     {
-        <div class="row row-cols-1 row-cols-md-3">
+        <div class="row row-cols-1 row-cols-md-3 ">
             @foreach (var product in Model.Products.OrderByDescending(product => product.CreatedAt))
             {
                 <div class="col mb-4">
-                    <div class="card h-100">
+                    <div class="card card shadow feedback h-100">
                         <img class="card-img-top" src="@product.Image" alt="image cap">
                         <div class="card-body">
                             <h5 class="card-title">@product.Name</h5>
@@ -61,7 +61,7 @@
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-center">
                     <h5 class="modal-title" id="exampleModalLabel">New Product</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>

@@ -1,23 +1,27 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div style="min-height: 100vh; position: relative;" style="max-height: 500px">
-    <section class="vh-100 position-fixed" style="background-color: #508bfc; top: 0; right: 0; bottom: 0; left: 0;">
-        <div class="row d-flex justify-content-center align-items-center h-100 mt-4">
-            <div class="card mb-3 mt-3 border-primary" style="max-width: 400px;">
-                <div class="row g-0">
-                    <div class="text-center">
-                        <img src="/Logo/AbnoLogo.png" style="width: 185px;" alt="logo">
-                    </div>
-                    <div class="col-md-12">
-                        <div class="card-body">
-                            @RenderBody()
+
+<div class="wrapper">
+    <div class="content">
+        <section>
+            <div class="container">
+                <div class="row d-flex justify-content-center align-items-center vh-100">
+                    <div class="card mb-3 border-primary" style="max-width: 400px;">
+                        <div class="row g-0">
+                            <div class="text-center">
+                                <img src="/Logo/AbnoLogo.png" style="width: 185px;" alt="logo">
+                            </div>
+                            <div class="col-md-12">
+                                <div class="card-body">
+                                    @RenderBody()
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-</div>
+        </section>
+    </div>
 
 @RenderSection("Scripts", required: false)

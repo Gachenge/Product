@@ -32,15 +32,15 @@
                     <button type="submit" class="btn btn-primary">Log in</button>
                 </div>
                 <div class="row">
-                    <div class="col">
-                    <p>
+                    <div class="col-7">
+                    <span>
                         <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
+                    </span>
                     </div>
                     <div class="col">
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
+                    <span>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register</a>
+                    </span>
                     </div>
                 </div>
             </form>

@@ -24,7 +24,7 @@ namespace Abno.Models
             this.Role = UserRole.User;
             this.Avatar = "/Avatars/default.jpg";
             this.Primary = "blue";
-            this.Secondary= "white";
+            this.Secondary= "#4dea39";
         }
 
     }
