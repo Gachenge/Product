@@ -1,10 +1,17 @@
-﻿@{
-    Layout = "/Views/Shared/_Layout.cshtml";
-}
-@using Abno.Models
+﻿@using Abno.Models
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<User> UserManager
-
+@{
+    var user = await UserManager.GetUserAsync(User);
+    if (User.IsInRole("Admin"))
+    {
+        Layout = "/Views/Admin/_Layout.cshtml";
+    }
+    else
+    {
+        Layout = "/Views/Shared/_Layout.cshtml";
+    }
+}
 <h1>Manage your account</h1>
 
 <div>
@@ -19,7 +26,6 @@
         </div>
         <div class="col-3">
             @{
-                var user = await UserManager.GetUserAsync(User);
                 if (user != null)
                 {
                     <img src="@user.Avatar" alt="avatar" class="img-fluid" style="width:100%" />

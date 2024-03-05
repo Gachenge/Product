@@ -6,16 +6,15 @@
 
 @Html.AntiForgeryToken()
 
-<div class="container col-12 mb-3;">
-    <div class="col py-3  border border-success mt-3 text-dark">
+<div class="container-fluid col-12 mb-3;">
+    <div class="col py-3  card shadow feedback mt-3 text-dark">
         <div id="tableContainer">
             <h5 class="text-center">@Model.userProduct.Product.Name</h5>
             <table id="myTable" class="table table-responsive display">
                 <thead>
                     <tr>
-                        <th>Subscribers</th>
-                        <th>Action</th>
-
+                        <th class="text-center">Subscribers</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,7 +25,7 @@
                                 @user
                             </td>
                             <td>
-                                <a data-bs-toggle="modal" data-bs-target="#exampleModal" type="button" class="btn btn-danger"></a>
+                                <a data-bs-toggle="modal" data-bs-target="#exampleModal" type="button" class="btn btn-danger text-white">Delete</a>
                             </td>
                         </tr>
                     }
@@ -39,13 +38,17 @@
                
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-confirm">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header flex-column">
+                <div class="icon-box">
+                    <i class="material-icons">&#xE5CD;</i>
+                </div>
+                <h4 class="modal-title w-100">Are you sure?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
             <div class="modal-body">
+                <p>Do you really want to stop this subscription? This process cannot be undone.</p>
                 <form method="post" asp-action="@Url.Action("Delete", "UserProducts", new { id = Model.userProduct.Id })">
                     <input type="hidden" name="id" value="@Model.userProduct.Id" />
                     <div class="modal-footer">

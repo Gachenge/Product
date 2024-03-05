@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Product management";
     var usr = await UserManager.GetUserAsync(User);
-    if (usr.Role == UserRole.Admin)
+    if (User.IsInRole("Admin"))
     {
         Layout = "~/Views/Admin/_Layout.cshtml";
     }
@@ -15,7 +15,7 @@
     }
 }
 
-<div class="container align-items-center col-12">
+<div class="container-fluid align-items-center col-12">
     @{
         var product = ViewData["product"] as Abno.Models.Product;
         if (product.IsAvailable)
@@ -42,7 +42,7 @@
     @{
         var user = await UserManager.GetUserAsync(User);
 
-        if (user.Role == UserRole.Admin)
+        if (User.IsInRole("Admin"))
         {
             <button class="btn btn-sm btn-secondary float-right">Subscribers: @subs</button>
 
@@ -125,14 +125,17 @@
     </div>
 
     <div class="modal fade" id="deleteModal_@product.Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-confirm">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Edit Product</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header flex-column">
+                    <div class="icon-box">
+                        <i class="material-icons">&#xE5CD;</i>
+                    </div>
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 </div>
                 <div class="modal-body">
-                    Are you sure to delete?
+                    <p>Do you really want to delete these records? This process cannot be undone.</p>
                     <form id="deleteForm" class="ajax-form" asp-action="Delete">
                         <input type="hidden" asp-for="Id" />
                         <input type="submit" value="Delete" class="btn btn-danger" />

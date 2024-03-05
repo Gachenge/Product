@@ -25,26 +25,20 @@ namespace Abno.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<User> userManager;
-        private UserRole _userRole;
+
+        public RoleManager<IdentityRole> RoleManager { get; }
+        public SignInManager<User> SignInManager { get; }
 
         public ProductsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment,
-            UserManager<User> userManager)
+            UserManager<User> userManager, RoleManager<IdentityRole> roleManager, SignInManager<User> signInManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             this.userManager = userManager;
+            RoleManager = roleManager;
+            SignInManager = signInManager;
         }
         
-        private void getUserRole()
-        {
-            var roleValue = User.FindFirstValue(ClaimTypes.Role);
-            if (Enum.TryParse<UserRole>(roleValue, out var userRole))
-            {
-                _userRole = userRole;
-            }
-        }
-
-
         // GET: Products
         public async Task<IActionResult> Index(int? page)
         {
@@ -180,9 +174,7 @@ namespace Abno.Controllers
                 return NotFound();
             }
 
-            getUserRole();
-
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -260,9 +252,7 @@ namespace Abno.Controllers
             try
             {
                 var product = await _context.Product.FindAsync(id);
-                getUserRole();
-
-                if (_userRole != UserRole.Admin)
+                if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
                 {
                     return Unauthorized();
                 }

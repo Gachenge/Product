@@ -6,7 +6,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-3 m-auto">
+<div class="container-fluid mt-3 m-auto">
     <div class="row">
         <div class="col-8">
             <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
@@ -32,9 +32,9 @@
 
                     <div class="col-md-12" data-aos="fade-up">
                         <p class="lead text-center">
-                            ABNO Softwares International Ltd is a market leader in IT with a vast experience 
-                            in providing premium custom solutions to Businesses. Driven by its Mission and Vision, 
-                            the company has invested heavily in technology, human capital and business development 
+                            ABNO Softwares International Ltd is a market leader in IT with a vast experience
+                            in providing premium custom solutions to Businesses. Driven by its Mission and Vision,
+                            the company has invested heavily in technology, human capital and business development
                             processes to remain a global hub for premium software solution.
                         </p>
                     </div>
@@ -42,36 +42,75 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12 columns">
-            <h2 class="fancy-title text-center" data-aos="fade-up"><span>Our solutions</span></h2>
-        </div>
-    </div>
-    <br />
-
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
-
-    @foreach (var product in Model.Products)
-    {
-        <div class="col mb-4">
-            <div class="card h-100 d-flex flex-column">
-                <img class="card-img-top" src="@product.Image" />
-                <div class="card-body d-flex flex-column">
-                        <h5 class="fancy-title text-center">@product.Name</h5>
-                        <div class="card-body text-success text-truncate">
-                            @product.Description
-                        </div>
+    <div class="row mt-3">
+        <div class="col-md-12 columns d-flex justify-content-center ">
+            <nav class="fancy-title h2" data-aos="fade-up">
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-team-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="nav-team" aria-selected="true" style="background-color:blue">Our solutions</button>
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary btn-sm">Read more</a>
+                        <button class="nav-link" id="nav-application-tab" data-bs-toggle="tab" data-bs-target="#mine" type="button" role="tab" aria-controls="nav-application" aria-selected="false" style="background-color:blue">My Products</button>
                     }
-                    else
-                    {
-                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-sm">Read more</a>
-                    }
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div class="tab-content mt-3">
+        <div id="all" class="container tab-pane active">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
+                @foreach (var product in Model.Products)
+                {
+                    <div class="col mb-4">
+                        <div class="card shadow feedback h-100">
+                            <img class="card-img-top" src="@product.Image" />
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="fancy-title text-center">@product.Name</h5>
+                                <div class="card-body text-success text-truncate">
+                                    @product.Description
+                                </div>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary btn-sm">Read more</a>
+                                }
+                                else
+                                {
+                                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-sm">Read more</a>
+                                }
+                            </div>
+                        </div>
                     </div>
+                }
             </div>
         </div>
-    }
-</div>
-<br />
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div id="mine" class="container tab-pane fade">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 mb-4">
+
+                    @if (Model.userProducts != null)
+                    {
+                        @foreach (var product in Model.userProducts)
+                        {
+                            <div class="col mb-4">
+                                <div class="card shadow feedback h-100">
+                                    <img class="card-img-top" src="@product.Product.Image" />
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="fancy-title text-center">@product.Product.Name</h5>
+                                        <div class="card-body text-success text-truncate">
+                                            @product.Product.Description
+                                        </div>
+                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId" class="btn btn-primary btn-sm">Read more</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    }
+                    <span class="text-muted h5">You are not subscribed to any products</span>
+                </div>
+            </div>
+        }
+        
+    </div>
+    <br />

@@ -19,29 +19,22 @@ namespace Abno.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private UserRole _role;
+        private RoleManager<IdentityRole> _roleManager;
         private SignInManager<User> _signManager;
         private UserManager<User> _userManager;
 
-        public AdminController(ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signManager)
+        public AdminController(ApplicationDbContext context, UserManager<User> userManager,
+            SignInManager<User> signManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _signManager = signManager;
+            _roleManager = roleManager;
         }
-        private void getUserRole()
-        {
-            var roleValue = User.FindFirstValue(ClaimTypes.Role);
-            if (Enum.TryParse<UserRole>(roleValue, out var userRole))
-            {
-                _role = userRole;
-            }
-        }
-
+        
         public async Task<IActionResult> UserManagement()
         {
-            getUserRole();
-            if (_role != UserRole.Admin)
+            if (!(_signManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -66,11 +59,11 @@ namespace Abno.Controllers
 
         public async Task<IActionResult> UserDetails(string? id)
         {
-            getUserRole();
-            if (_role != UserRole.Admin)
+            if (!(_signManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
+
             var user = await _context.Users.FirstOrDefaultAsync(u => id == u.Id);
             if (user != null)
             {
@@ -81,8 +74,7 @@ namespace Abno.Controllers
 
         public async Task<IActionResult> EditUser(string? id)
         {
-            getUserRole();
-            if (_role != UserRole.Admin)
+            if (!(_signManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -100,12 +92,10 @@ namespace Abno.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(string id, [Bind("Id, Role, Primary, Secondary")] User user)
         {
-            getUserRole();
-            if (_role != UserRole.Admin)
+            if (!(_signManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
-
             if (!ModelState.IsValid)
             {
                 TempData[Constants.Error] = "An error occurred";
@@ -119,7 +109,8 @@ namespace Abno.Controllers
                 {
                     return NotFound();
                 }
-                updateUser.Role = user.Role;
+                //updateUser.Role = user.Role;
+                
                 updateUser.Primary = user.Primary;
                 updateUser.Secondary = user.Secondary;
 
@@ -158,8 +149,7 @@ namespace Abno.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            getUserRole();
-            if (_role != UserRole.Admin)
+            if (!(_signManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -285,11 +275,11 @@ namespace Abno.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AddNewUserViewModel user)
         {
-            getUserRole();
-            if (_role != UserRole.Admin)
+            if (!(_signManager.IsSignedIn(User) || !User.IsInRole("Admin")))
             {
                 return Unauthorized();
             }
+
             if (ModelState.IsValid)
             {
                 var existingEmail = _context.Users.Where(u => u.Email == user.Email).FirstOrDefault();

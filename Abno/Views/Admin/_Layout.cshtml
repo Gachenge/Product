@@ -13,8 +13,7 @@
     {
         Scolor = user.Secondary;
     }
-     var role = user.Role;
-    if (role != UserRole.Admin)
+    if (!(User.IsInRole("Admin")))
     {
         Context.Response.Redirect("home");
     }

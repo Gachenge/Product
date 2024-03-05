@@ -86,7 +86,7 @@ namespace Abno.Areas.Identity.Pages.Account
                     _logger.LogInformation("User logged in.");
 
                     var user = await _signInManager.UserManager.FindByNameAsync(Input.UserName);
-                    if (user.Role == UserRole.Admin)
+                    if (await _signInManager.UserManager.IsInRoleAsync(user, "Admin"))
                     {
                         TempData[Constants.Success] = "Welcome " + user.UserName;
                         return LocalRedirect("~/Admin");

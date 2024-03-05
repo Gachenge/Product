@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @model Abno.Models.AddNewUserViewModel
 @inject UserManager<User> UserManager
+@inject RoleManager<IdentityRole> _roleManager
+
 @{
     ViewData["Title"] = "UserManagement";
     Layout = "~/Views/Admin/_Layout.cshtml";
@@ -8,8 +10,9 @@
 
 @Html.AntiForgeryToken()
 
-<div class="container col-12 mb-3">
-    <div class="m-auto p-2 mb-3">
+<div class="container-fluid col-12 mb-3">
+    <div class="d-flex justify-content-between mt-3">
+        <h3 class="text-capitalize" style="font-weight:600">User Management</h3>
         <button type="button" class="btn btn-primary float-right" data-bs-toggle="modal" data-bs-target="#exampleModal">Add User</button>
     </div>
     <br />
@@ -46,31 +49,31 @@
                             <td>
                                     <a type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#exampleModal_@u.Key.Id">Edit</a>
 
-                                    <a type="button" class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#deleteModal_@u.Key.Id">Delete</a>
+                                    <a type="button" class=" btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#deleteModal_@u.Key.Id">Delete</a>
                             </td>
                         </tr>
                         <div class="modal fade" id="exampleModal_@u.Key.Id" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
-                                <div class="modal-content bg-secondary text-white">
+                                <div class="modal-content">
                                     <div class="modal-header">
-                                            <h5 class="modal-title text-center" id="exampleModalLabel">Edit User</h5>
+                                        <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <form method="post" class="ajax-form" asp-action="EditUser" asp-route-id="@u.Key.Id" id="editUserForm_@u.Key.Id">
                                             <input type="hidden" id="editUserId" name="id" value="@u.Key.Id" />
 
-                                            <h5>Change user role</h5>
-                                            @foreach (UserRole rol in Enum.GetValues(typeof(UserRole)))
-                                            {
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="Role" id="@($"role_{rol}")" value="@rol" @(rol == u.Key.Role ? "checked" : "")>
-                                                    <br><label class="form-check-label" for="@($"role_{rol}")">
-                                                        @rol
-                                                    </label>
-                                                </div>
-                                            }
-                                            <div class="container">
+                                                <label>Select Role:</label>
+                                                 @foreach (var role in _roleManager.Roles.ToList())
+                                                {
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="SelectedRole" asp-for="Role" id="@($"role_{role.Id}")" value="@role.Name" >
+                                                        <label class="form-check-label" for="@($"role_{role.Id}")">
+                                                            @role.Name
+                                                        </label>
+                                                    </div>
+                                                }
+                                                <div class="container">
                                                 <label asp-for="@u.Key.Primary">Choose a primary color:</label><br />
                                                 <input type="color" id="Primary" name="Primary" value="@u.Key.Primary"><br />
 
@@ -87,26 +90,28 @@
                             </div>
                             </div>
                             <div class="modal fade" id="deleteModal_@u.Key.Id" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content text-dark">
-                                        <div class="modal-header">
-                                            <h4 class="modal-title text-center" id="exampleModalLabel">Delete User</h4>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div class="modal-dialog modal-confirm">
+                                    <div class="modal-content">
+                                        <div class="modal-header flex-column">
+                                            <div class="icon-box">
+                                                <i class="material-icons">&#xE5CD;</i>
+                                            </div>
+                                            <h4 class="modal-title w-100">Are you sure?</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                                         </div>
                                         <div class="modal-body">
-                                            
+                                            <i class="ri-error-warning-line alert-warning m-auto text-danger h5">
                                             @{
                                                 var usr = await UserManager.GetUserAsync(User);
                                                 if (usr.Id == u.Key.Id)
                                                 {
-                                                    <span class="text-danger h5 d-flex justify-content-center">You are about to delete yourself!</span><br />
+                                                    <span>You are about to delete yourself!</span><br />
                                                 }
                                             }
-                                            <span class="text-danger h5 d-flex justify-content-center">
-
+                                            <span>
                                         This action cannot be undone.
                                         </span>
-                                            <i class="ri-error-warning-line alert-warning d-flex justify-content-center"></i>
+                                            </i>
                                         <form method="post" class="ajax-form" asp-action="DeleteConfirmed" asp-route-id="@u.Key.Id" id="deleteUserForm_@u.Key.Id">
                                                 <input type="hidden" id="deleteUserId" name="id" value="@u.Key.Id" />
                                                 <div class="modal-footer">

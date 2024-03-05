@@ -14,23 +14,34 @@ namespace Abno.Common
             using (var scope = serviceProvider.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                string[] roleNames = { "Admin", "User" };
+                IdentityResult roleResult;
+
+                foreach (var roleName in roleNames)
+                {
+                    var roleExist = await RoleManager.RoleExistsAsync(roleName);
+                    if (!roleExist)
+                    {
+                        roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
                 var userEmail = "admin@abno.com";
                 var poweruser = new User
                 {
                     UserName = userEmail,
                     Email = userEmail,
                     EmailConfirmed = true,
-                    Role = UserRole.Admin
                 };
                 string password = "123456";
                 var user = await userManager.FindByEmailAsync(userEmail);
                 if (user == null)
                 {
                     var createPowerUser = await userManager.CreateAsync(poweruser, password);
-                    //if (createPowerUser.Succeeded)
-                    //{
-                    //    await userManager.AddToRoleAsync(poweruser, "Admin");
-                    //}
+                    if (createPowerUser.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(poweruser, "Admin");
+                    }
                 }
             }
         }

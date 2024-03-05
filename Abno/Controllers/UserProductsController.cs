@@ -10,33 +10,30 @@ using Abno.Models;
 using System.Security.Claims;
 using Microsoft.CodeAnalysis;
 using Abno.Common;
+using Microsoft.AspNetCore.Identity;
 
 namespace Abno.Controllers
 {
     public class UserProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private UserRole _userRole;
 
-        public UserProductsController(ApplicationDbContext context)
+        public SignInManager<User> SignInManager { get; }
+        public RoleManager<IdentityRole> RoleManager { get; }
+
+        public UserProductsController(ApplicationDbContext context, SignInManager<User> signInManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            SignInManager = signInManager;
+            RoleManager = roleManager;
         }
 
-        private void getUserRole()
-        {
-            var roleValue = User.FindFirstValue(ClaimTypes.Role);
-            if (Enum.TryParse<UserRole>(roleValue, out var userRole))
-            {
-                _userRole = userRole;
-            }
-        }
 
         // GET: UserProducts
         public async Task<IActionResult> Index()
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -57,8 +54,7 @@ namespace Abno.Controllers
         // GET: UserProducts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -96,8 +92,7 @@ namespace Abno.Controllers
         // GET: UserProducts/Create
         public async Task<IActionResult> Create(int id)
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -122,12 +117,11 @@ namespace Abno.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AddSubscriberViewModel viewModel)
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
-            
+
             if (ModelState.IsValid)
             {
                 var existingSubscription = await _context.UserProducts
@@ -158,8 +152,7 @@ namespace Abno.Controllers
         // GET: UserProducts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -185,8 +178,7 @@ namespace Abno.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UpdatedAt,UserId,ProductId")] UserProduct userProduct)
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -224,8 +216,7 @@ namespace Abno.Controllers
         // GET: UserProducts/Delete/5
         public IActionResult Delete(int? id)
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }
@@ -252,8 +243,7 @@ namespace Abno.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            getUserRole();
-            if (_userRole != UserRole.Admin)
+            if (!(SignInManager.IsSignedIn(User) || (User.IsInRole("Admin"))))
             {
                 return Unauthorized();
             }

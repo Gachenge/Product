@@ -32,8 +32,9 @@ namespace Abno
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = false)
+            services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<RoleManager<IdentityRole>>();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddTransient<Seeder>();
